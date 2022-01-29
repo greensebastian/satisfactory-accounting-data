@@ -28,7 +28,6 @@
             if (!_observers.Contains(observer))
             {
                 _observers.Add(observer);
-                observer.OnNext(Value);
             }
             return new Unsubscriber(_observers, observer);
         }

@@ -5,18 +5,20 @@ namespace SatisfactoryAccountingData.Client.Model;
 
 public abstract class BaseProducer : IProducer
 {
-    private readonly ReplayObservable<IItemRateSet> _productManager = new (new ItemRateSet());
-    private readonly ReplayObservable<IItemRateSet> _efficiencyManager = new(new ItemRateSet());
-    private readonly ReplayObservable<IItemRateSet> _productionRatiosManager = new(new ItemRateSet());
-    private IItemRateSet _desiredProducts = new ItemRateSet();
+    private readonly ReplayObservable<IItemRateList> _productManager = new (new ItemRateList());
+    private readonly ReplayObservable<IItemRateList> _efficiencyManager = new(new ItemRateList());
+    private readonly ReplayObservable<IItemRateList> _productionRatiosManager = new(new ItemRateList());
+    private IItemRateList _desiredProducts = new ItemRateList();
     private IReadOnlySet<IProducer> _sources = new HashSet<IProducer>();
+    private readonly List<IDisposable> _sourceSubscriptions = new();
 
-    public IObservable<IItemRateSet> Products => _productManager;
-    public IObservable<IItemRateSet> ProductionRatios => _productionRatiosManager;
-    public IObservable<IItemRateSet> Efficiency => _efficiencyManager;
-    public IItemRateSet CurrentProducts => _productManager.Value;
+    public IObservable<IItemRateList> Products => _productManager;
+    public IObservable<IItemRateList> ProductionRatios => _productionRatiosManager;
+    public IObservable<IItemRateList> Efficiency => _efficiencyManager;
+    public IItemRateList CurrentProducts => _productManager.Value;
+    public IItemRateList CurrentProductionRatios => _productionRatiosManager.Value;
 
-    public IItemRateSet DesiredProducts
+    public IItemRateList DesiredProducts
     {
         get => _desiredProducts;
         set
@@ -31,23 +33,40 @@ public abstract class BaseProducer : IProducer
         get => _sources;
         set
         {
+            foreach (var subscription in _sourceSubscriptions)
+            {
+                subscription.Dispose();
+            }
+            _sourceSubscriptions.Clear();
             _sources = value;
+            _sourceSubscriptions.AddRange(_sources.Select(source => source.Products.Subscribe(_ => OnInputChanged())));
             OnInputChanged();
         }
     }
 
-    protected void OnInputChanged()
+    private bool _onInputChangedEnabled = true;
+
+    protected virtual void OnInputChanged()
     {
+        UpdateSourceConsumption();
+
+        if (!_onInputChangedEnabled) return;
+        _onInputChangedEnabled = false;
+
         _productManager.Value = ComputeProducts();
         _productionRatiosManager.Value = ComputeProductionRatios();
+
+        _onInputChangedEnabled = true;
         // TODO figure out efficiency?
     }
 
-    protected abstract IItemRateSet ComputeProducts();
+    protected abstract void UpdateSourceConsumption();
 
-    private IItemRateSet ComputeProductionRatios()
+    protected abstract IItemRateList ComputeProducts();
+
+    private IItemRateList ComputeProductionRatios()
     {
-        var ratios = new ItemRateSet();
+        var ratios = new ItemRateList();
         foreach (var desiredProduct in _desiredProducts)
         {
             var product =
