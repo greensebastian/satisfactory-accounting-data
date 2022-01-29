@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
-namespace SatisfactoryAccountingData.Domain
+namespace SatisfactoryAccountingData.Shared.Model
 {
     public class SatisfactoryModel
     {
@@ -83,13 +80,13 @@ namespace SatisfactoryAccountingData.Domain
 
         public List<ItemRate> IngredientsPerMinute => Ingredients.Select(ingredient => new ItemRate
         {
-            Name = ingredient.Name,
+            ClassName = ingredient.ClassName,
             Amount = ingredient.Amount * 60 / ManufactoringDuration
         }).ToList();
 
         public List<ItemRate> ProductPerMinute => Product.Select(product => new ItemRate
         {
-            Name = product.Name,
+            ClassName = product.ClassName,
             Amount = product.Amount * 60 / ManufactoringDuration
         }).ToList();
 
@@ -102,14 +99,14 @@ namespace SatisfactoryAccountingData.Domain
             sb.AppendLine("Input:");
             foreach (var ingredient in IngredientsPerMinute)
             {
-                sb.AppendLine($"{ingredient.Amount}\t{ingredient.Name}");
+                sb.AppendLine($"{ingredient.Amount}\t{ingredient.ClassName}");
             }
             sb.AppendLine();
 
             sb.AppendLine("Output:");
             foreach (var product in ProductPerMinute)
             {
-                sb.AppendLine($"{product.Amount}\t{product.Name}");
+                sb.AppendLine($"{product.Amount}\t{product.ClassName}");
             }
 
             return sb.ToString();
@@ -172,7 +169,7 @@ namespace SatisfactoryAccountingData.Domain
 
     public class ItemRate
     {
-        public string Name { get; set; }
+        public string ClassName { get; set; }
         public double Amount { get; set; }
     }
 

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
+using SatisfactoryAccountingData.Shared.Model;
 
-namespace SatisfactoryAccountingData.Domain
+namespace SatisfactoryAccountingData
 {
     public class SatisfactoryModelFactory
     {
@@ -61,7 +62,7 @@ namespace SatisfactoryAccountingData.Domain
                                         .Split('=').Last());
                                     parts.Add(new ItemRate
                                     {
-                                        Name = itemClass,
+                                        ClassName = itemClass,
                                         Amount = amount
                                     });
                                 }
