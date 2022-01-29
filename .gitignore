@@ -266,3 +266,6 @@ __pycache__/
 # Custom
 appsettings.json
 appsettings.*.json
+
+PublishProfiles
+ServiceDependencies
