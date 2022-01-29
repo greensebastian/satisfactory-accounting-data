@@ -132,18 +132,44 @@ namespace SatisfactoryAccountingData.Client.Test
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "Banana" && product.Amount == 1);
         }
 
-        private class ItemRateListBuilder
+        [Fact]
+        public void RecipeProducer_TwoInputsOneOutput_ShouldOptimize()
         {
-            private readonly ItemRateList _list = new();
-
-            public ItemRateListBuilder WithItem(string name, double amount)
+            var producer = RecipeProducerFactory.WithSingleOutput("Output", 10, ("A", 10), ("B", 20));
+            var aProducer = RecipeProducerFactory.WithSingleProduct("A", 10);
+            var bProducer = RecipeProducerFactory.WithSingleProduct("B", 10);
+            producer.Sources = new HashSet<IProducer>
             {
-                _list.Add(new ItemRate{ClassName = name, Amount = amount});
-                return this;
-            }
+                aProducer,
+                bProducer
+            };
 
-            public IItemRateList Build() => _list.DeepCopy();
-            public List<ItemRate> BuildList() => new (Build());
+            producer.DesiredProducts = new ItemRateListBuilder()
+                .WithItem("Output", 500)
+                .Build();
+
+            producer.CurrentProducts.ShouldContain(product => product.ClassName == "Output" && product.Amount == 5);
+
+            // TODO This requires re-doing source computations after consumption is done in RecipeProducer
+            //aProducer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
+
+            bProducer.CurrentProducts.ShouldContain(product => product.ClassName == "B" && product.Amount == 10);
+        }
+
+        [Fact]
+        public void RecipeProducer_OneImpossibleOutput_ShouldNotFail()
+        {
+            var producer = RecipeProducerFactory.WithSingleProduct("A", 10);
+            producer.Sources = new HashSet<IProducer>
+            {
+                new UnlimitedProducer()
+            };
+
+            producer.DesiredProducts = new ItemRateListBuilder()
+                .WithItem("B", 500)
+                .Build();
+
+            producer.CurrentProducts.ShouldBeEmpty();
         }
     }
 }

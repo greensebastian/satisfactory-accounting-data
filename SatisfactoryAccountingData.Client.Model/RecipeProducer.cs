@@ -98,6 +98,7 @@ namespace SatisfactoryAccountingData.Client.Model
 
                 // Should maybe change desired product on the source here as we now know what it can produce.
                 // Changing will produce a re-compute of that entire tree though, so skipping for now.
+                // TODO this
             }
         }
 
