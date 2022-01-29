@@ -151,7 +151,7 @@ namespace SatisfactoryAccountingData.Client.Test
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "Output" && product.Amount == 5);
 
             // TODO This requires re-doing source computations after consumption is done in RecipeProducer
-            //aProducer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
+            aProducer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
 
             bProducer.CurrentProducts.ShouldContain(product => product.ClassName == "B" && product.Amount == 10);
         }
@@ -170,6 +170,29 @@ namespace SatisfactoryAccountingData.Client.Test
                 .Build();
 
             producer.CurrentProducts.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void RecipeProducer_OneInputSourceChanges_ShouldUpdate()
+        {
+            var producer = RecipeProducerFactory.WithSingleProduct("A", 10);
+            producer.Sources = new HashSet<IProducer>
+            {
+                new UnlimitedProducer()
+            };
+
+            producer.DesiredProducts = new ItemRateListBuilder()
+                .WithItem("A", 500)
+                .Build();
+
+            producer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 10);
+
+            producer.Sources = new HashSet<IProducer>
+            {
+                RecipeProducerFactory.WithSingleProduct("A", 5)
+            };
+
+            producer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
         }
     }
 }

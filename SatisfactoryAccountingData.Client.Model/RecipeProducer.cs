@@ -34,10 +34,15 @@ namespace SatisfactoryAccountingData.Client.Model
 
         protected override void UpdateSourceConsumption()
         {
+            UpdateSourceConsumptionByDesire(DesiredProducts);
+        }
+
+        private void UpdateSourceConsumptionByDesire(IItemRateList desiredProducts)
+        {
             // Current recipe must be able to make the product
             // Use recipe as truth to limit production rate
             var possibleProducts = Recipe.ProductPerMinute.Where(product =>
-                DesiredProducts.Any(desiredProduct => desiredProduct.ClassName == product.ClassName));
+                desiredProducts.Any(desiredProduct => desiredProduct.ClassName == product.ClassName));
 
             // Compile complete list of desired ingredients
             var totalDesiredIngredients = new ItemRateList().AsDictionary();
@@ -46,7 +51,7 @@ namespace SatisfactoryAccountingData.Client.Model
             {
                 // Compute needed amount, while taking into account it may already have been added
                 var desiredAmountByConsumer =
-                    DesiredProducts.First(product => product.ClassName == recipeProduct.ClassName).Amount;
+                    desiredProducts.First(product => product.ClassName == recipeProduct.ClassName).Amount;
                 var desiredProductAmount = Math.Min(recipeProduct.Amount * ClockSpeed, desiredAmountByConsumer);
 
                 if (desiredProductAmount == 0) continue; // Avoid division by zero
@@ -95,10 +100,6 @@ namespace SatisfactoryAccountingData.Client.Model
                     consumed = Math.Max(consumed, 0);
                     totalDesiredIngredients[producedProduct.ClassName] -= consumed;
                 }
-
-                // Should maybe change desired product on the source here as we now know what it can produce.
-                // Changing will produce a re-compute of that entire tree though, so skipping for now.
-                // TODO this
             }
         }
 
@@ -132,9 +133,12 @@ namespace SatisfactoryAccountingData.Client.Model
                 return Math.Min(receivedIngredient.Amount / desired.Amount, ClockSpeed);
             });
 
-            return new ItemRateList(Recipe.ProductPerMinute
-                .Select(product => 
+            var optimizedDesiredProducts = 
+                new ItemRateList(Recipe.ProductPerMinute.Select(product => 
                     new ItemRate { ClassName = product.ClassName, Amount = product.Amount * lowestRatioToRequired }));
+
+            UpdateSourceConsumptionByDesire(optimizedDesiredProducts);
+            return optimizedDesiredProducts;
         }
     }
 }

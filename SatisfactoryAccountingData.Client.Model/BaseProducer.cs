@@ -49,12 +49,14 @@ public abstract class BaseProducer : IProducer
     protected virtual void OnInputChanged()
     {
         UpdateSourceConsumption();
+        var products = ComputeProducts();
+        var productionRatios = ComputeProductionRatios();
 
         if (!_onInputChangedEnabled) return;
         _onInputChangedEnabled = false;
 
-        _productManager.Value = ComputeProducts();
-        _productionRatiosManager.Value = ComputeProductionRatios();
+        _productManager.Value = products;
+        _productionRatiosManager.Value = productionRatios;
 
         _onInputChangedEnabled = true;
         // TODO figure out efficiency?
