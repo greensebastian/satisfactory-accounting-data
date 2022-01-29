@@ -6,12 +6,12 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using SatisfactoryAccountingData.Domain;
 using SatisfactoryAccountingData.Services;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using SatisfactoryAccountingData.Shared.Model;
 
 namespace SatisfactoryAccountingData.Functions
 {
@@ -19,7 +19,6 @@ namespace SatisfactoryAccountingData.Functions
     {
         private readonly CosmosSatisfactoryClient _cosmosClient;
         private readonly AuthorizationService _authService;
-
 
         public Update(ILogger<Update> log, CosmosSatisfactoryClient cosmosClient, AuthorizationService authService) : base(log)
         {

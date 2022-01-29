@@ -1,0 +1,115 @@
+﻿@page "/data"
+@using SatisfactoryAccountingData.Shared.Model
+@using System.Text
+@inject SatisfactoryApiClient _apiClient
+
+<PageTitle>Data</PageTitle>
+
+<h1>Reference Data</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (_model == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Class Name</th>
+            <th>Stack Size</th>
+            <th>Form</th>
+            <th>Resource Sink Points</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in _model.ItemDescriptors)
+        {
+            <tr>
+                <td>@item.DisplayName</td>
+                <td>@item.ClassName</td>
+                <td>@item.StackSize</td>
+                <td>@item.Form</td>
+                <td>@item.ResourceSinkPoints</td>
+                <td>@item.Description</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Class Name</th>
+            <th>Ingredients</th>
+            <th>Product</th>
+            <th>Manufacturing Duration</th>
+            <th>Produced In</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var recipe in _model.Recipes)
+        {
+            <tr>
+                <td>@recipe.DisplayName</td>
+                <td>@recipe.ClassName</td>
+                <td><pre>@ItemRateToString(recipe.IngredientsPerMinute)</pre></td>
+                <td><pre>@ItemRateToString(recipe.ProductPerMinute)</pre></td>
+                <td>@recipe.ManufactoringDuration</td>
+                <td>@string.Join(", ", recipe.ProducedIn)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Class Name</th>
+            <th>Ingredients</th>
+            <th>Product</th>
+            <th>Manufacturing Duration</th>
+            <th>Produced In</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var recipe in _model.Recipes)
+        {
+            <tr>
+                <td>@recipe.DisplayName</td>
+                <td>@recipe.ClassName</td>
+                <td><pre>@ItemRateToString(recipe.IngredientsPerMinute)</pre></td>
+                <td><pre>@ItemRateToString(recipe.ProductPerMinute)</pre></td>
+                <td>@recipe.ManufactoringDuration</td>
+                <td>@string.Join(", ", recipe.ProducedIn)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private SatisfactoryModel? _model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _model = await _apiClient.GetSatisfactoryModel();
+    }
+
+    private string ItemRateToString(List<ItemRate> items)
+    {
+        var sb = new StringBuilder();
+        foreach (var item in items)
+        {
+            sb.AppendLine($"{item.Amount}\t{item.ClassName}");
+        }
+        return sb.ToString();
+
+    }
+}

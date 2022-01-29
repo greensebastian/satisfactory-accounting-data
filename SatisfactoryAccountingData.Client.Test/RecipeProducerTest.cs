@@ -149,8 +149,7 @@ namespace SatisfactoryAccountingData.Client.Test
                 .Build();
 
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "Output" && product.Amount == 5);
-
-            // TODO This requires re-doing source computations after consumption is done in RecipeProducer
+            
             aProducer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
 
             bProducer.CurrentProducts.ShouldContain(product => product.ClassName == "B" && product.Amount == 10);

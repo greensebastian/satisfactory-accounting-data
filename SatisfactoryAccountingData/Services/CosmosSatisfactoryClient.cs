@@ -1,10 +1,10 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using SatisfactoryAccountingData.Domain;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using SatisfactoryAccountingData.Shared.Model;
 
 namespace SatisfactoryAccountingData.Services
 {

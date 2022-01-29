@@ -4,11 +4,11 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using SatisfactoryAccountingData.Domain;
 using SatisfactoryAccountingData.Services;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using SatisfactoryAccountingData.Shared.Model;
 
 namespace SatisfactoryAccountingData.Functions
 {
