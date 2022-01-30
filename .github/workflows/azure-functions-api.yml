@@ -32,7 +32,6 @@ jobs:
         run: |
           echo ${{needs.build.outputs.artifact-name}}
           echo ${{needs.build.outputs.artifact-name-env}}
-          echo ${{jobs.build.outputs.artifact-name-env}}
           echo ${{needs.build.uses.outputs.artifact-name}}
           echo ${{needs.build.outputs.artifact-name-env}}
           echo ${{needs.uses.outputs.artifact-name}}
