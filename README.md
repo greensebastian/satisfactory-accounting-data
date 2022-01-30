@@ -5,9 +5,13 @@ This is a web app for tracking and planning satisfactory factories.
 It consists of two parts:
 
 * An api for uploading, processing and storing game information.
-* A site for planning and recording your factories.
+* A client for planning and recording your factories.
 
-## Live site
+[![Build and deploy API to Azure Functions](https://github.com/greensebastian/satisfactory-accounting-data/actions/workflows/azure-functions-api.yml/badge.svg?branch=master)](https://github.com/greensebastian/satisfactory-accounting-data/actions/workflows/azure-functions-api.yml)
+
+[![Build and deploy Client to Azure Web Apps](https://github.com/greensebastian/satisfactory-accounting-data/actions/workflows/azure-webapps-client.yml/badge.svg?branch=master)](https://github.com/greensebastian/satisfactory-accounting-data/actions/workflows/azure-webapps-client.yml)
+
+## Client
 
 https://satisfactory-accounting.azurewebsites.net/
 
@@ -37,15 +41,3 @@ Computes and updates the stored model from the Docs.json file found in the insta
 Requires a valid `X-Key: <key>` header.
 
 https://satisfactory-accounting-data.azurewebsites.net/api/update
-
-## Deployment
-
-### UI
-
-For now, publishprofile from azure web app.
-
-### API
-
-```
-func azure functionapp publish satisfactory-accounting-data
-```
