@@ -13,9 +13,6 @@ on:
       artifact-name:
         description: "Name of created artifact"
         value: ${{ jobs.build-and-test.outputs.artifact-name }}
-      artifact-name-env:
-        description: "Name of created artifact"
-        value: ${{ jobs.build-and-test.env.artifact-name }}
 
 jobs:
   build-and-test:
