@@ -27,11 +27,11 @@ namespace SatisfactoryAccountingData.Functions
         }
 
         [FunctionName("Update")]
-        [OpenApiOperation("Run")]
+        [OpenApiOperation("RunUpdate")]
         [OpenApiRequestBody("application/json", typeof(object), Description = "Documentation file from installed instance of the game\n\nSatisfactoryEarlyAccess\\CommunityResources\\Docs\\Docs.json")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SatisfactoryModel))]
         [OpenApiSecurity("ApiKey", SecuritySchemeType.ApiKey, In = OpenApiSecurityLocationType.Header, Name = AuthorizationService.ApiKeyHeaderName)]
-        public async Task<IActionResult> Run(
+        public async Task<IActionResult> RunUpdate(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, CancellationToken hostCancellationToken)
         {
             var authorizeResult = _authService.Authorize(req);

@@ -22,10 +22,10 @@ namespace SatisfactoryAccountingData.Functions
         }
 
         [FunctionName("Get")]
-        [OpenApiOperation("Run")]
+        [OpenApiOperation("RunGet")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SatisfactoryModel))]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent)]
-        public async Task<IActionResult> Run(
+        public async Task<IActionResult> RunGet(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req, CancellationToken hostCancellationToken)
         {
             var cancellationToken = CombineTokens(req, hostCancellationToken);
