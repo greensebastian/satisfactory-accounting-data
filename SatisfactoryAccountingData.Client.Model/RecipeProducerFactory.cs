@@ -4,7 +4,7 @@ namespace SatisfactoryAccountingData.Client.Model
 {
     public class RecipeProducerFactory
     {
-        public static RecipeProducer WithSingleProduct(string name, double amount)
+        public static RecipeProducer FromSingleOutput(string name, double amount)
         {
             var recipe = new Recipe
             {
@@ -27,27 +27,7 @@ namespace SatisfactoryAccountingData.Client.Model
             return producer;
         }
 
-        public static RecipeProducer LikeConstructor(string ingredientName, double ingredientAmount, string productName, double productAmount)
-        {
-            var recipe = new Recipe
-            {
-                ManufactoringDuration = 60,
-                Ingredients = new ItemRateList
-                {
-                    new() { Amount = ingredientAmount, ClassName = ingredientName }
-                },
-                Product = new ItemRateList
-                {
-                    new() { Amount = productAmount, ClassName = productName }
-                }
-            };
-
-            var producer = new RecipeProducer(recipe);
-
-            return producer;
-        }
-
-        public static RecipeProducer WithSingleOutput(string productName, double productAmount, params (string Name, double Amount)[] ingredients)
+        public static RecipeProducer FromSingleOutputRecipe(string productName, double productAmount, params (string Name, double Amount)[] ingredients)
         {
             var recipe = new Recipe
             {

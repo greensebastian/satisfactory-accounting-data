@@ -135,9 +135,9 @@ namespace SatisfactoryAccountingData.Client.Test
         [Fact]
         public void RecipeProducer_TwoInputsOneOutput_ShouldOptimize()
         {
-            var producer = RecipeProducerFactory.WithSingleOutput("Output", 10, ("A", 10), ("B", 20));
-            var aProducer = RecipeProducerFactory.WithSingleProduct("A", 10);
-            var bProducer = RecipeProducerFactory.WithSingleProduct("B", 10);
+            var producer = RecipeProducerFactory.FromSingleOutputRecipe("Output", 10, ("A", 10), ("B", 20));
+            var aProducer = RecipeProducerFactory.FromSingleOutput("A", 10);
+            var bProducer = RecipeProducerFactory.FromSingleOutput("B", 10);
             producer.Sources = new HashSet<IProducer>
             {
                 aProducer,
@@ -145,24 +145,23 @@ namespace SatisfactoryAccountingData.Client.Test
             };
 
             producer.DesiredProducts = new ItemRateListBuilder()
-                .WithItem("Output", 500)
+                .WithItem("Output", 10)
                 .Build();
 
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "Output" && product.Amount == 5);
-            
+            producer.CurrentProductEfficiencies.ShouldContain(product => product.ClassName == "Output" && product.Amount == 0.5);
+
             aProducer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
+            aProducer.CurrentProductEfficiencies.ShouldContain(product => product.ClassName == "A" && product.Amount == 0.5);
 
             bProducer.CurrentProducts.ShouldContain(product => product.ClassName == "B" && product.Amount == 10);
+            bProducer.CurrentProductEfficiencies.ShouldContain(product => product.ClassName == "B" && product.Amount == 1);
         }
 
         [Fact]
         public void RecipeProducer_OneImpossibleOutput_ShouldNotFail()
         {
-            var producer = RecipeProducerFactory.WithSingleProduct("A", 10);
-            producer.Sources = new HashSet<IProducer>
-            {
-                new UnlimitedProducer()
-            };
+            var producer = RecipeProducerFactory.FromSingleOutput("A", 10);
 
             producer.DesiredProducts = new ItemRateListBuilder()
                 .WithItem("B", 500)
@@ -174,11 +173,7 @@ namespace SatisfactoryAccountingData.Client.Test
         [Fact]
         public void RecipeProducer_OneInputSourceChanges_ShouldUpdate()
         {
-            var producer = RecipeProducerFactory.WithSingleProduct("A", 10);
-            producer.Sources = new HashSet<IProducer>
-            {
-                new UnlimitedProducer()
-            };
+            var producer = RecipeProducerFactory.FromSingleOutput("A", 10);
 
             producer.DesiredProducts = new ItemRateListBuilder()
                 .WithItem("A", 500)
@@ -188,7 +183,26 @@ namespace SatisfactoryAccountingData.Client.Test
 
             producer.Sources = new HashSet<IProducer>
             {
-                RecipeProducerFactory.WithSingleProduct("A", 5)
+                RecipeProducerFactory.FromSingleOutput("A", 5)
+            };
+
+            producer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
+        }
+
+        [Fact]
+        public void RecipeProducer_OneInputHigherClock_ShouldWork()
+        {
+            var producer = RecipeProducerFactory.FromSingleOutput("A", 10);
+
+            producer.DesiredProducts = new ItemRateListBuilder()
+                .WithItem("A", 500)
+                .Build();
+
+            producer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 10);
+
+            producer.Sources = new HashSet<IProducer>
+            {
+                RecipeProducerFactory.FromSingleOutput("A", 5)
             };
 
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);

@@ -10,8 +10,8 @@ namespace SatisfactoryAccountingData.Client.Model
         IItemRateList DesiredProducts { get; set; }
         IObservable<IItemRateList> Products { get; }
         IItemRateList CurrentProducts { get; }
-        IObservable<IItemRateList> ProductionRatios { get; }
-        IItemRateList CurrentProductionRatios { get; }
+        IObservable<IItemRateList> ProductEfficiencies { get; }
+        IItemRateList CurrentProductEfficiencies { get; }
         IObservable<IItemRateList> Efficiency { get; }
         IReadOnlySet<IProducer> Sources { get; set; }
     }

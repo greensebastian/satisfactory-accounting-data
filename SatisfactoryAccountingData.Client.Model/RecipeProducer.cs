@@ -140,5 +140,27 @@ namespace SatisfactoryAccountingData.Client.Model
             UpdateSourceConsumptionByDesire(optimizedDesiredProducts);
             return optimizedDesiredProducts;
         }
+
+        protected override IItemRateList ComputeProductEfficiencies()
+        {
+            var ratios = new ItemRateList();
+            foreach (var desiredProduct in Recipe.ProductPerMinute)
+            {
+                var product =
+                    CurrentProducts.FirstOrDefault(product => product.ClassName == desiredProduct.ClassName);
+
+                if (product == null)
+                {
+                    ratios.Add(new ItemRate { Amount = 0, ClassName = desiredProduct.ClassName });
+                }
+                else
+                {
+                    ratios.Add(new ItemRate
+                        { Amount = product.Amount / desiredProduct.Amount, ClassName = desiredProduct.ClassName });
+                }
+            }
+
+            return ratios;
+        }
     }
 }

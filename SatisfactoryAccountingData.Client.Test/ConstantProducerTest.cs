@@ -57,8 +57,8 @@ namespace SatisfactoryAccountingData.Client.Test
                 }
             };
 
-            producer.CurrentProductionRatios.First().Amount.ShouldBe(1);
-            producer.CurrentProductionRatios.Last().Amount.ShouldBe(1);
+            producer.CurrentProductEfficiencies.First().Amount.ShouldBe(1);
+            producer.CurrentProductEfficiencies.Last().Amount.ShouldBe(1);
         }
     }
 }
