@@ -25,9 +25,9 @@ env:
   DOTNET_VERSION: '6.0.x'                 # set this to the .NET Core version to use
 
 on:
-#  push:
-#    branches:
-#      - master
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -68,6 +68,9 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
