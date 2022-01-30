@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       artifact-name: .net-app
-      app-path: ${{env.DOTNET_ROOT}}/myapp
     steps:
       - uses: actions/checkout@v2
 
@@ -46,10 +45,10 @@ jobs:
         run: dotnet test --verbosity normal --no-restore
 
       - name: dotnet publish
-        run: dotnet publish ${{inputs.project-path}} -c Release -o ${{env.app-path}} --no-restore
+        run: dotnet publish ${{inputs.project-path}} -c Release -o ${{env.DOTNET_ROOT}}/myapp --no-restore
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: ${{env.artifact-name}}
-          path: ${{env.app-path}}
+          path: ${{env.DOTNET_ROOT}}/myapp
