@@ -6,6 +6,9 @@ on:
       project-path:
         required: true
         type: string
+      dotnet-version:
+        required: true
+        type: string
     outputs:
       artifact-name:
         description: "Name of created artifact"
@@ -23,7 +26,7 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ inputs.dotnet-version }}
       
       - name: Set up dependency caching for faster builds
         uses: actions/cache@v2
