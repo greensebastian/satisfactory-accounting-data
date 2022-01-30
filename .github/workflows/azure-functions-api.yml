@@ -22,12 +22,21 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}/api/swagger/ui
+      url: ${{ steps.deploy-to-functions.outputs.webapp-url }}/api/swagger/ui
     permissions:
       id-token: write
       contents: read
 
     steps:
+      - name: Test cli
+        run: |
+          echo ${{needs.build.outputs.artifact-name}}
+          echo ${{needs.build.outputs.artifact-name-env}}
+          echo ${{jobs.build.outputs.artifact-name-env}}
+          echo ${{needs.build.uses.outputs.artifact-name}}
+          echo ${{needs.build.outputs.artifact-name-env}}
+          echo ${{needs.uses.outputs.artifact-name}}
+
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
         with:
@@ -44,6 +53,7 @@ jobs:
         run: |
            pwd
            echo ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+           echo ${{needs.build.outputs.artifact-name}}
            echo ${{needs.build.outputs.artifact-name}}
            echo ${{needs.build.uses.outputs.artifact-name}}
            echo '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{needs.build.outputs.artifact-name}}'

@@ -12,6 +12,9 @@ on:
     outputs:
       artifact-name:
         description: "Name of created artifact"
+        value: ${{ jobs.build-and-test.outputs.artifact-name }}
+      artifact-name-env:
+        description: "Name of created artifact"
         value: ${{ jobs.build-and-test.env.artifact-name }}
 
 jobs:
@@ -19,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       artifact-name: .net-app
+    outputs:
+      artifact-name: ${{env.artifact-name}}
     steps:
       - uses: actions/checkout@v2
 
