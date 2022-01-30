@@ -16,6 +16,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+    - name: 'Test AZ'
+      run: |
+          az --help
+    
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
