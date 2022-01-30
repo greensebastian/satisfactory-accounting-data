@@ -3,7 +3,6 @@ name: Build and deploy API to Azure Functions
 env:
   AZURE_FUNCTIONS_NAME: satisfactory-accounting-data   # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: '.'                       # set this to the path to your web app project, defaults to the repository root
-  ARTIFACT_NAME: dotnet-app
 
 on:
   push:
@@ -17,7 +16,7 @@ jobs:
     with:
       project-path: SatisfactoryAccountingData
       dotnet-version: '6.0.x'
-      artifact-name: ${{ env.ARTIFACT_NAME }}
+      artifact-name: dotnet-app
 
   deploy:
     runs-on: ubuntu-latest
@@ -33,7 +32,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: dotnet-app
 
       - name: 'Az CLI login'
         uses: azure/login@v1
