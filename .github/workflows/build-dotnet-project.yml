@@ -18,7 +18,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     env:
-      artifact-name: .net-app
+      artifact-name: dotnet-app
     outputs:
       artifact-name: ${{env.artifact-name}}
     steps:
