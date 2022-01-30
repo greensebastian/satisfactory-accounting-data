@@ -45,4 +45,4 @@ jobs:
         id: deploy-to-functions
         with:
           app-name: ${{ env.AZURE_FUNCTIONS_NAME }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{needs.build.outputs.artifact-name}}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
