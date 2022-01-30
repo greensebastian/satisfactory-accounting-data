@@ -9,18 +9,13 @@ on:
       dotnet-version:
         required: true
         type: string
-    outputs:
       artifact-name:
-        description: "Name of created artifact"
-        value: ${{ jobs.build-and-test.outputs.artifact-name }}
+        required: true
+        type: string
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    env:
-      artifact-name: dotnet-app
-    outputs:
-      artifact-name: ${{env.artifact-name}}
     steps:
       - uses: actions/checkout@v2
 
@@ -52,5 +47,5 @@ jobs:
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
-          name: ${{env.artifact-name}}
+          name: ${{inputs.artifact-name}}
           path: ${{env.DOTNET_ROOT}}/myapp
