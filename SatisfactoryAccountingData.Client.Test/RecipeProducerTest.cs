@@ -130,6 +130,7 @@ namespace SatisfactoryAccountingData.Client.Test
                 .Build();
             
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "Banana" && product.Amount == 1);
+            producer.CurrentProducts.ShouldContain(product => product.ClassName == "Banana" && product.Amount == 100);
         }
 
         [Fact]
