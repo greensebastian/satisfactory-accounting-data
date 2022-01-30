@@ -34,7 +34,6 @@ jobs:
   build:
     uses: ./.github/workflows/build-dotnet-project.yml
     with:
-      dotnet-version: ${{ env.DOTNET_VERSION }}
       project-path: SatisfactoryAccountingData.Client
 
   deploy:

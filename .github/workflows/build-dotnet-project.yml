@@ -3,9 +3,6 @@ name: Reusable workflow example
 on:
   workflow_call:
     inputs:
-      dotnet-version:
-        required: true
-        type: string
       project-path:
         required: true
         type: string
@@ -26,7 +23,7 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ inputs.dotnet-version }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
       
       - name: Set up dependency caching for faster builds
         uses: actions/cache@v2
