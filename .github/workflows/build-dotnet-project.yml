@@ -42,7 +42,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
         
       - name: dotnet test
-        run: dotnet test --verbosity normal --no-restore
+        run: dotnet test --logger trx --results-directory "TestResults" --no-restore
 
       - name: dotnet publish
         run: dotnet publish ${{inputs.project-path}} -c Release -o ${{env.DOTNET_ROOT}}/myapp --no-restore
