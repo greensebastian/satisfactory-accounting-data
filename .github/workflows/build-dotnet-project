@@ -1,0 +1,55 @@
+name: Reusable workflow example
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        required: true
+        type: string
+      project-path:
+        required: true
+        type: string
+    outputs:
+      artifact-name:
+        description: "Name of created artifact"
+        value: ${{ jobs.build-and-test.env.artifact-name }}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      artifact-name: .net-app
+      app-path: ${{env.DOTNET_ROOT}}/myapp
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+      
+      - name: Set up dependency caching for faster builds
+        uses: actions/cache@v2
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      
+      - name: dotnet restore
+        run: dotnet restore
+      
+      - name: Build with dotnet
+        run: dotnet build --configuration Release --no-restore
+        
+      - name: dotnet test
+        run: dotnet test --verbosity normal --no-restore
+
+      - name: dotnet publish
+        run: dotnet publish ${{inputs.project-path}} -c Release -o ${{env.app-path}} --no-restore
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{env.artifact-name}}
+          path: ${{env.app-path}}
