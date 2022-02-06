@@ -1,22 +1,22 @@
 ﻿using SatisfactoryAccountingData.Client.Model.Observables;
-using SatisfactoryAccountingData.Shared.Model;
 
-namespace SatisfactoryAccountingData.Client.Model;
+namespace SatisfactoryAccountingData.Client.Model.Observable;
 
 public abstract class BaseProducer : IProducer
 {
-    private readonly ReplayObservable<IItemRateList> _productManager = new (new ItemRateList());
-    private readonly ReplayObservable<IItemRateList> _efficiencyManager = new(new ItemRateList());
-    private readonly ReplayObservable<IItemRateList> _productEfficienciesManager = new(new ItemRateList());
+    private readonly ReplaySubject<IItemRateList> _productManager = new (new ItemRateList());
+    private readonly ReplaySubject<IItemRateList> _efficiencyManager = new(new ItemRateList());
+    private readonly ReplaySubject<IItemRateList> _productEfficienciesManager = new(new ItemRateList());
     private IItemRateList _desiredProducts = new ItemRateList();
     private IReadOnlySet<IProducer> _sources = new HashSet<IProducer>();
     private readonly List<IDisposable> _sourceSubscriptions = new();
 
     public IObservable<IItemRateList> Products => _productManager;
+    public IItemRateList Ingredients { get; protected set; } = new ItemRateList();
     public IObservable<IItemRateList> ProductEfficiencies => _productEfficienciesManager;
     public IObservable<IItemRateList> Efficiency => _efficiencyManager;
-    public IItemRateList CurrentProducts => _productManager.Value;
-    public IItemRateList CurrentProductEfficiencies => _productEfficienciesManager.Value;
+    public IItemRateList CurrentProducts => _productManager.CurrentValue;
+    public IItemRateList CurrentProductEfficiencies => _productEfficienciesManager.CurrentValue;
 
     public IItemRateList DesiredProducts
     {
@@ -55,11 +55,11 @@ public abstract class BaseProducer : IProducer
         if (!_onInputChangedEnabled) return;
         _onInputChangedEnabled = false;
 
-        _productManager.Value = products;
+        _productManager.CurrentValue = products;
 
         _onInputChangedEnabled = true;
 
-        _productEfficienciesManager.Value = ComputeProductEfficiencies();
+        _productEfficienciesManager.CurrentValue = ComputeProductEfficiencies();
         // TODO figure out efficiency?
     }
 

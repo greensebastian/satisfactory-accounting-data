@@ -1,5 +1,6 @@
 using System.Linq;
 using SatisfactoryAccountingData.Client.Model;
+using SatisfactoryAccountingData.Client.Model.Observable;
 using SatisfactoryAccountingData.Client.Model.Observables;
 using Shouldly;
 using Xunit;

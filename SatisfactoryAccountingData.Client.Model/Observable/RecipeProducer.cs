@@ -1,5 +1,6 @@
 ﻿using SatisfactoryAccountingData.Shared.Model;
-namespace SatisfactoryAccountingData.Client.Model
+
+namespace SatisfactoryAccountingData.Client.Model.Observable
 {
     public class RecipeProducer : BaseProducer
     {
@@ -84,6 +85,8 @@ namespace SatisfactoryAccountingData.Client.Model
                     totalDesiredIngredients[desiredIngredient.ClassName] += desiredIngredientAmount;
                 }
             }
+
+            Ingredients = new ItemRateList(totalDesiredIngredients);
 
             // Overflow sources to gather all ingredients
             foreach (var producer in Sources)

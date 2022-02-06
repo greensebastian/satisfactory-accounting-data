@@ -1,11 +1,12 @@
 ﻿using SatisfactoryAccountingData.Shared.Model;
 
-namespace SatisfactoryAccountingData.Client.Model
+namespace SatisfactoryAccountingData.Client.Model.Observable
 {
     public class UnlimitedProducer : BaseProducer
     {
         protected override void UpdateSourceConsumption()
         {
+            Ingredients = new ItemRateList();
         }
 
         protected override IItemRateList ComputeProducts()

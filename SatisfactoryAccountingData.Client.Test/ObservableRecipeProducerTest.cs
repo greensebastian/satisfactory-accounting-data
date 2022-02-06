@@ -1,12 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
 using SatisfactoryAccountingData.Client.Model;
+using SatisfactoryAccountingData.Client.Model.Observable;
 using SatisfactoryAccountingData.Shared.Model;
 using Shouldly;
 using Xunit;
 
 namespace SatisfactoryAccountingData.Client.Test
 {
-    public class RecipeProducerTest
+    public class ObservableRecipeProducerTest
     {
         [Fact]
         public void RecipeProducer_OneInputOneOutput_ShouldHaveProducts()
@@ -206,6 +208,33 @@ namespace SatisfactoryAccountingData.Client.Test
             };
 
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
+        }
+
+        [Fact]
+        public void RecipeProducer_TwoConsumersOneSource_ShouldSplit()
+        {
+            var producer = RecipeProducerFactory.FromSingleOutput("A", 10);
+            var c1 = RecipeProducerFactory.FromSingleOutputRecipe("B", 10, ("A", 10));
+            var c2 = RecipeProducerFactory.FromSingleOutputRecipe("B", 10, ("A", 10));
+
+            c1.DesiredProducts = new ItemRateListBuilder()
+                .WithItem("B", 10)
+                .Build();
+            c2.DesiredProducts = new ItemRateListBuilder()
+                .WithItem("B", 10)
+                .Build();
+
+            c1.Sources = new HashSet<IProducer>
+            {
+                producer
+            };
+            c2.Sources = new HashSet<IProducer>
+            {
+                producer
+            };
+
+            c1.CurrentProducts.Single(product => product.ClassName == "B").Amount.ShouldBe(10);
+            c2.CurrentProducts.Single(product => product.ClassName == "B").Amount.ShouldBe(0);
         }
     }
 }

@@ -2,25 +2,29 @@
 
 public class ActionObserver<T> : IObserver<T>
 {
-    private readonly Action<T> _onChange;
+    private readonly Action<T> _onNext;
+    private readonly Action<Exception> _onError;
+    private readonly Action _onComplete;
 
-    public ActionObserver(Action<T> onChange)
+    public ActionObserver(Action<T> onNext, Action<Exception> onError, Action onComplete)
     {
-        _onChange = onChange;
+        _onNext = onNext;
+        _onError = onError;
+        _onComplete = onComplete;
     }
 
-    public void OnCompleted()
+    public virtual void OnCompleted()
     {
-        throw new NotImplementedException();
+        _onComplete();
     }
 
-    public void OnError(Exception error)
+    public virtual void OnError(Exception error)
     {
-        throw new NotImplementedException();
+        _onError(error);
     }
 
-    public void OnNext(T value)
+    public virtual void OnNext(T value)
     {
-        _onChange(value);
+        _onNext(value);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using SatisfactoryAccountingData.Shared.Model;
 
-namespace SatisfactoryAccountingData.Client.Model
+namespace SatisfactoryAccountingData.Client.Model.Observable
 {
     public class RecipeProducerFactory
     {

@@ -1,24 +1,29 @@
 ﻿namespace SatisfactoryAccountingData.Client.Model.Observables
 {
-    public class ReplayObservable<T> : IObservable<T> where T : class
+    public interface IReplayObservable<out T> : IObservable<T> where T : class
+    {
+        T CurrentValue { get; }
+    }
+
+    public class ReplaySubject<T> : IReplayObservable<T> where T : class
     {
         private readonly HashSet<IObserver<T>> _observers = new();
-        private T _value;
+        private T _currentValue;
 
-        public ReplayObservable(T initialValue)
+        public ReplaySubject(T initialCurrentValue)
         {
-            _value = initialValue;
+            _currentValue = initialCurrentValue;
         }
 
-        public T Value
+        public T CurrentValue
         {
-            get => _value;
+            get => _currentValue;
             set
             {
-                _value = value;
+                _currentValue = value;
                 foreach (var observer in _observers)
                 {
-                    observer.OnNext(Value);
+                    observer.OnNext(CurrentValue);
                 }
             }
         }
@@ -32,7 +37,14 @@
             return new Unsubscriber(_observers, observer);
         }
 
-        
+        public void Complete()
+        {
+            foreach (var observer in _observers)
+            {
+                observer.OnCompleted();
+                _observers.Remove(observer);
+            }
+        }
 
         private class Unsubscriber : IDisposable
         {
