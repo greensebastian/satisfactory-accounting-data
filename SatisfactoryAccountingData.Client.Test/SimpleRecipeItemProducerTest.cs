@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using SatisfactoryAccountingData.Client.Model.Simple;
 using SatisfactoryAccountingData.Shared.Model;
 using Shouldly;
@@ -182,6 +183,59 @@ namespace SatisfactoryAccountingData.Client.Test
             producer.Products[request].Single().ClassName.ShouldBe("Banana");
             producer.Products[request].Single().Amount.ShouldBe(20);
             producer.LeftoverProducts.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void RecipeItemProducer_TwoConsumersOneSource_ShouldSplit()
+        {
+            var producer = RecipeItemProducerFactory.FromSingleOutput("A", 10);
+            var c1 = RecipeItemProducerFactory.FromSingleOutputRecipe("B", 10, ("A", 10));
+            var c2 = RecipeItemProducerFactory.FromSingleOutputRecipe("B", 10, ("A", 10));
+
+            var r1 = new ItemRateListBuilder()
+                .WithItem("B", 10)
+                .Build();
+            var r2 = new ItemRateListBuilder()
+                .WithItem("B", 10)
+                .Build();
+
+            c1.AddSource(producer);
+            c2.AddSource(producer);
+
+            c1.AddRequest(r1);
+            c2.AddRequest(r2);
+
+            c1.Products.Values.Single().Single().ClassName.ShouldBe("B");
+            c1.Products.Values.Single().Single().Amount.ShouldBe(10);
+
+            c2.Products.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void RecipeItemProducer_BypassSplit_ShouldSplit()
+        {
+            var producer = RecipeItemProducerFactory.FromSingleOutput("A", 10);
+            var middleman = RecipeItemProducerFactory.FromSingleOutputRecipe("B", 10, ("A", 8));
+            var consumer = RecipeItemProducerFactory.FromSingleOutputRecipe("C", 10, ("A", 5), ("B", 10));
+
+            var expectedProductionRatio = (10 - 8) / 5d;
+
+            var request = new ItemRateListBuilder()
+                .WithItem("C", 10)
+                .Build();
+
+            middleman.AddSource(producer);
+
+            consumer.AddSource(middleman);
+            consumer.AddSource(producer);
+
+            consumer.AddRequest(request);
+
+            middleman.Products.Values.Single().Single().ClassName.ShouldBe("B");
+            middleman.Products.Values.Single().Single().Amount.ShouldBe(expectedProductionRatio * 10);
+
+            consumer.Products.Values.Single().Single().ClassName.ShouldBe("C");
+            consumer.Products.Values.Single().Single().Amount.ShouldBe(expectedProductionRatio * 10);
         }
     }
 }
