@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazored.LocalStorage" Version="4.1.5" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
+    <PackageReference Include="Blazored.Typeahead" Version="4.6.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
@@ -16,6 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SatisfactoryAccountingData.Client.Model\SatisfactoryAccountingData.Client.Model.csproj" />
+    <ProjectReference Include="..\SatisfactoryAccountingData.Client.Test\SatisfactoryAccountingData.Client.Test.csproj" />
     <ProjectReference Include="..\SatisfactoryAccountingData.Model\SatisfactoryAccountingData.Shared.Model.csproj" />
   </ItemGroup>
 

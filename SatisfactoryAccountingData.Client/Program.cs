@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SatisfactoryAccountingData.Client;
@@ -8,6 +9,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddHttpClient<SatisfactoryApiClient>();
 builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<SatisfactoryApiClient>();
+builder.Services.AddScoped<SatisfactoryApiClient>();
+builder.Services.AddBlazoredLocalStorage();
 
 await builder.Build().RunAsync();

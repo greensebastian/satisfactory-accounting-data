@@ -4,6 +4,10 @@ namespace SatisfactoryAccountingData.Client.Model.Simple
 {
     public class RecipeItemProducer : BaseItemSource
     {
+        public RecipeItemProducer(Guid id) : base(id)
+        {
+        }
+
         public Recipe? Recipe
         {
             get => _recipe;
@@ -46,6 +50,7 @@ namespace SatisfactoryAccountingData.Client.Model.Simple
             // Update requests after learning limits of sources
             var optimizedDesiredIngredients = ComputeDesiredIngredients(availableProducts);
             var usedIngredients = RequestIngredients(optimizedDesiredIngredients);
+            ProtectedConsumedIngredients.AddRange(new ItemRateList(usedIngredients));
             var productionRatio = ComputeProductionRatio(usedIngredients);
             var products = ComputeProduction(productionRatio).AsDictionary();
 
@@ -78,7 +83,7 @@ namespace SatisfactoryAccountingData.Client.Model.Simple
                 source.RemoveRequest(request);
             }
 
-            foreach (var source in Sources)
+            foreach (var source in ProtectedSources)
             {
                 if (totalDesiredIngredients.Values.All(amount => amount == 0)) continue;
 

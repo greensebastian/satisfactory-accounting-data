@@ -1,9 +1,242 @@
 ﻿@page "/"
+@using SatisfactoryAccountingData.Shared.Model
+@using Blazored.Typeahead
+@using SatisfactoryAccountingData.Client.Model
+@using SatisfactoryAccountingData.Client.Model.Simple
+@inject SatisfactoryApiClient _apiClient
+@inject Blazored.LocalStorage.ILocalStorageService _localStorage
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Production</h1>
 
-Welcome to your new app.
+<h2>Saving</h2>
+<div class="card mb-4">
+    <div class="card-header">
+        Save/load
+    </div>
+    <div class="card-body">
+        <label class="form-label">Storage save name</label>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" @bind="@StorageName"/>
+        </div>
+        <button class="btn btn-primary mb-3 d-block" @onclick="async () => await LoadFromStorage()">Load from storage</button>
+        <button class="btn btn-secondary mb-3 d-block" @onclick="async () => await SaveToStorage()">Save to storage</button>
+    </div>
+</div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<h2>Planning</h2>
+<div class="card mb-4">
+    <div class="card-header">
+        Group
+    </div>
+    <div class="card-body">
+        @foreach (var row in Rows)
+        {
+            <button class="btn btn-primary mb-3 d-block" @onclick="() => AddBuilderToGroup(row)">Add recipe</button>
+            <label class="form-label">Number of builders</label>
+            <div class="input-group mb-3">
+                <input type="number" class="form-control" @bind="@row.Count"/>
+            </div>
+            <label class="form-label">Recipe</label>
+            <div class="input-group mb-3">
+                <BlazoredTypeahead @bind-Value="@row.Recipe" SearchMethod="@SearchRecipe">
+                    <SelectedTemplate>
+                        @context.DisplayName
+                    </SelectedTemplate>
+                    <ResultTemplate>
+                        @context.DisplayName (@context.ClassName)
+                    </ResultTemplate>
+                </BlazoredTypeahead>
+            </div>
+            <button class="btn btn-danger mb-3 d-block" @onclick="() => RemoveBuilderFromGroup(row)">Remove recipe</button>
+        }
+        <button class="btn btn-primary mb-3 d-block" @onclick="() => AddBuilderToGroup()">Add recipe</button>
+    </div>
+</div>
+
+<h2>Result</h2>
+<button class="btn btn-primary mb-3 d-block" @onclick="async () => await ComputeResults()">Compute results</button>
+@if (_resourceResults != null)
+{
+    <table class="table mb-4">
+        <thead>
+        <tr>
+            <th scope="col">Item Name</th>
+            <th scope="col">Produced</th>
+            <th scope="col">Used</th>
+            <th scope="col">Leftover</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var result in _resourceResults.OrderBy(result => result.Descriptor.DisplayName))
+        {
+            <tr>
+                <th scope="row">@result.Descriptor.DisplayName</th>
+                <td>@result.ProducedPerMinute</td>
+                <td>@result.ConsumedPerMinute</td>
+                <td>@result.LeftoverPerMinute</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code
+{
+    private class RowViewModel
+    {
+        public Recipe? Recipe { get; set; }
+        public int Count { get; set; } = 1;
+    }
+
+    LinkedList<RowViewModel> Rows { get; } = new();
+
+    private class ResourceResult
+    {
+        public Descriptor Descriptor { get; set; }
+        public double ProducedPerMinute { get; set; }
+        public double ConsumedPerMinute { get; set; }
+        public double LeftoverPerMinute { get; set; }
+    }
+
+    private string StorageName { get; set; } = "default";
+
+    private IList<ISimpleItemSource>? _results;
+
+    private List<ResourceResult>? _resourceResults;
+
+    private void AddSourcesRecursive(ISimpleItemSource source, List<ISimpleItemSource> sources)
+    {
+        if(!sources.Contains(source)) sources.Add(source);
+        foreach (var childSource in source.Sources)
+        {
+            AddSourcesRecursive(childSource, sources);
+        }
+    }
+
+    private string StorageKey => $"production-rows-{StorageName}";
+
+    private async Task LoadFromStorage()
+    {
+        var fromStorage = await _localStorage.GetItemAsync<LinkedList<RowViewModel>>(StorageKey);
+        Rows.Clear();
+        foreach (var node in fromStorage)
+        {
+            Rows.AddLast(node);
+        }
+        await ComputeResults();
+    }
+
+    private async Task SaveToStorage()
+    {
+        await _localStorage.SetItemAsync(StorageKey, Rows);
+    }
+
+    private async Task<IEnumerable<Recipe>> SearchRecipe(string searchText)
+    {
+        var data = await _apiClient.GetSatisfactoryModel();
+        return data.Recipes.Where(recipe => recipe.ClassName.ToLowerInvariant().Contains(searchText.ToLowerInvariant()));
+    }
+
+    private void AddBuilderToGroup(RowViewModel? row = null)
+    {
+        if (row != null)
+        {
+            Rows.AddBefore(Rows.Find(row), new RowViewModel());
+        }
+        else
+        {
+            Rows.AddLast(new RowViewModel());
+        }
+    }
+
+    private void RemoveBuilderFromGroup(RowViewModel row)
+    {
+        Rows.Remove(row);
+    }
+
+    private async Task ComputeResults()
+    {
+        var plan = new FactoryPlan
+        {
+            Id = Guid.NewGuid()
+        };
+        plan.Components.Add(new FactoryComponent
+        {
+            Id = Guid.NewGuid(),
+            Type = ComponentType.Source // TODO this doesn't work, as currently all rows can use it...
+        });
+        foreach (var row in Rows)
+        {
+            var sourceIds = new List<Guid>(plan.Components.Select(c => c.Id));
+            for (var i = 0; i < row.Count; i++)
+            {
+                var component = new FactoryComponent
+                {
+                    Id = Guid.NewGuid(),
+                    Sources = sourceIds,
+                    RecipeName = row.Recipe.ClassName,
+                    Type = ComponentType.Builder
+                };
+                plan.Components.Add(component);
+            }
+        }
+
+        var satisfactoryModel = await _apiClient.GetSatisfactoryModel();
+
+        _results = RecipeItemProducerFactory.FromFactoryPlan(plan, satisfactoryModel.Recipes, true);
+
+        var allItemSources = (_results ?? new List<ISimpleItemSource>())
+            .Aggregate(new List<ISimpleItemSource>(), (gatheredSources, source) =>
+            {
+                AddSourcesRecursive(source, gatheredSources);
+                return gatheredSources;
+            });
+
+        _resourceResults = new List<ResourceResult>();
+        foreach (var itemSource in allItemSources)
+        {
+            foreach (var itemRate in itemSource.Products.SelectMany(entry => entry.Value))
+            {
+                var result = GetOrCreateResourceResult(itemRate.ClassName, satisfactoryModel);
+                result.ProducedPerMinute += itemRate.Amount;
+            }
+
+            foreach (var itemRate in itemSource.LeftoverProducts)
+            {
+                var result = GetOrCreateResourceResult(itemRate.ClassName, satisfactoryModel);
+                result.LeftoverPerMinute += itemRate.Amount;
+            }
+
+            foreach (var itemRate in itemSource.ConsumedIngredients)
+            {
+                var result = GetOrCreateResourceResult(itemRate.ClassName, satisfactoryModel);
+                result.ConsumedPerMinute += itemRate.Amount;
+            }
+        }
+    }
+
+    private ResourceResult GetOrCreateResourceResult(string className, SatisfactoryModel model)
+    {
+        var result = _resourceResults.Find(res => res.Descriptor.ClassName == className);
+
+        if (result != null) return result;
+
+        Descriptor descriptor = model.ItemDescriptors.Find(des => des.ClassName == className);
+        if (descriptor == null)
+        {
+            descriptor = model.ResourceDescriptors.Find(des => des.ClassName == className);
+        }
+        result = new ResourceResult
+        {
+            Descriptor = descriptor,
+            ConsumedPerMinute = 0d,
+            LeftoverPerMinute = 0d,
+            ProducedPerMinute = 0d
+        };
+        _resourceResults.Add(result);
+
+        return result;
+    }
+}

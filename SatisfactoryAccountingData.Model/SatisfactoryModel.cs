@@ -14,7 +14,7 @@ namespace SatisfactoryAccountingData.Shared.Model
         public List<BuildableManufacturer> BuildableManufacturers { get; set; }
     }
 
-    public class ResourceDescriptor
+    public class Descriptor
     {
         public string ClassName { get; set; }
         public string FullName { get; set; }
@@ -23,10 +23,6 @@ namespace SatisfactoryAccountingData.Shared.Model
         public string Description { get; set; }
         public StackSize StackSize { get; set; }
         public Form Form { get; set; }
-        public double DecalSize { get; set; }
-        public string PingColor { get; set; }
-        public double CollectSpeedMultiplier { get; set; }
-        public string ManualMiningAudioName { get; set; }
         public bool CanBeDiscarded { get; set; }
         public bool RememberPickUp { get; set; }
         public double EnergyValue { get; set; }
@@ -40,26 +36,16 @@ namespace SatisfactoryAccountingData.Shared.Model
         public double BuildMenuPriority { get; set; }
     }
 
-    public class ItemDescriptor
+    public class ResourceDescriptor : Descriptor
     {
-        public string ClassName { get; set; }
-        public string FullName { get; set; }
-        public string DisplayName { get; set; }
-        public string AbbreviatedDisplayName { get; set; }
-        public string Description { get; set; }
-        public StackSize StackSize { get; set; }
-        public bool CanBeDiscarded { get; set; }
-        public bool RememberPickUp { get; set; }
-        public double EnergyValue { get; set; }
-        public double RadioactiveDecay { get; set; }
-        public string SmallIcon { get; set; }
-        public string PersistentBigIcon { get; set; }
-        public string SubCategories { get; set; }
-        public double MenuPriority { get; set; }
-        public string FluidColor { get; set; }
-        public string GasColor { get; set; }
-        public double BuildMenuPriority { get; set; }
-        public Form Form { get; set; }
+        public double DecalSize { get; set; }
+        public string PingColor { get; set; }
+        public double CollectSpeedMultiplier { get; set; }
+        public string ManualMiningAudioName { get; set; }
+    }
+
+    public class ItemDescriptor : Descriptor
+    {
         public double ResourceSinkPoints { get; set; }
     }
 

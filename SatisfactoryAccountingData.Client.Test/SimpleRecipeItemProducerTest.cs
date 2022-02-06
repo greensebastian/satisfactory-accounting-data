@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using SatisfactoryAccountingData.Client.Model;
 using SatisfactoryAccountingData.Client.Model.Simple;
 using SatisfactoryAccountingData.Shared.Model;
 using Shouldly;
@@ -23,7 +25,7 @@ namespace SatisfactoryAccountingData.Client.Test
                 ManufactoringDuration = 60
             };
 
-            var producer = new RecipeItemProducer
+            var producer = new RecipeItemProducer(Guid.NewGuid())
             {
                 Recipe = recipe
             };
@@ -36,7 +38,7 @@ namespace SatisfactoryAccountingData.Client.Test
 
             producer.Products.ShouldBeEmpty();
 
-            producer.AddSource(new UnlimitedItemSource());
+            producer.AddSource(new UnlimitedItemSource(Guid.NewGuid()));
 
             producer.Products[request].Single().ClassName.ShouldBe("Banana");
             producer.Products[request].Single().Amount.ShouldBe(2);
@@ -58,12 +60,12 @@ namespace SatisfactoryAccountingData.Client.Test
                 ManufactoringDuration = 60
             };
 
-            var bananaProducer = new RecipeItemProducer
+            var bananaProducer = new RecipeItemProducer(Guid.NewGuid())
             {
                 Recipe = bananaRecipe
             };
 
-            bananaProducer.AddSource(new UnlimitedItemSource());
+            bananaProducer.AddSource(new UnlimitedItemSource(Guid.NewGuid()));
             
             var clementineRecipe = new Recipe
             {
@@ -72,7 +74,7 @@ namespace SatisfactoryAccountingData.Client.Test
                 ManufactoringDuration = 60
             };
 
-            var clementineProducer = new RecipeItemProducer
+            var clementineProducer = new RecipeItemProducer(Guid.NewGuid())
             {
                 Recipe = clementineRecipe
             };
@@ -105,7 +107,7 @@ namespace SatisfactoryAccountingData.Client.Test
                 ManufactoringDuration = 60
             };
 
-            var producer = new RecipeItemProducer
+            var producer = new RecipeItemProducer(Guid.NewGuid())
             {
                 Recipe = recipe
             };
@@ -118,7 +120,7 @@ namespace SatisfactoryAccountingData.Client.Test
 
             producer.Products.ShouldBeEmpty();
 
-            producer.AddSource(new UnlimitedItemSource());
+            producer.AddSource(new UnlimitedItemSource(Guid.NewGuid()));
 
             producer.Products[request].Single().ClassName.ShouldBe("Banana");
             producer.Products[request].Single().Amount.ShouldBe(1);
@@ -154,7 +156,7 @@ namespace SatisfactoryAccountingData.Client.Test
         public void RecipeItemProducer_OneInputOneOutputClockSpeed_ShouldWork()
         {
             var producer = RecipeItemProducerFactory.FromSingleOutputRecipe("Banana", 10, ("Apple", 10));
-            producer.AddSource(new UnlimitedItemSource());
+            producer.AddSource(new UnlimitedItemSource(Guid.NewGuid()));
 
             var request = new ItemRateListBuilder()
                 .WithItem("Banana", 20)
@@ -236,6 +238,110 @@ namespace SatisfactoryAccountingData.Client.Test
 
             consumer.Products.Values.Single().Single().ClassName.ShouldBe("C");
             consumer.Products.Values.Single().Single().Amount.ShouldBe(expectedProductionRatio * 10);
+        }
+
+        [Fact]
+        public void RecipeItemProducer_FromFactoryPlan_ShouldWork()
+        {
+            var unlimitedSourceId = Guid.NewGuid();
+            var copperProducerId = Guid.NewGuid();
+            var wireProducerId = Guid.NewGuid();
+
+            var plan = new FactoryPlan
+            {
+                Id = Guid.Empty,
+                Components = new List<FactoryComponent>
+                {
+                    new()
+                    {
+                        Id = wireProducerId,
+                        RecipeName = "Recipe_Wire_C",
+                        Sources = new List<Guid>
+                        {
+                            copperProducerId
+                        },
+                        Type = ComponentType.Builder
+                    },
+                    new()
+                    {
+                        Id = copperProducerId,
+                        RecipeName = "Recipe_CopperIngot_C",
+                        Sources = new List<Guid>
+                        {
+                            unlimitedSourceId
+                        },
+                        Type = ComponentType.Builder
+                    },
+                    new()
+                    {
+                        Id = unlimitedSourceId,
+                        Type = ComponentType.Source
+                    }
+                }
+            };
+
+            var wireRecipe = new Recipe
+            {
+                ClassName = "Recipe_Wire_C",
+                Ingredients = new List<ItemRate>
+                {
+                    new()
+                    {
+                        ClassName = "Desc_CopperIngot_C",
+                        Amount = 1
+                    }
+                },
+                Product = new List<ItemRate>
+                {
+                    new()
+                    {
+                        ClassName = "Desc_Wire_C",
+                        Amount = 2
+                    }
+                },
+                ManufactoringDuration = 4
+            };
+
+            var copperIngotRecipe = new Recipe
+            {
+                ClassName = "Recipe_CopperIngot_C",
+                Ingredients = new List<ItemRate>
+                {
+                    new()
+                    {
+                        ClassName = "Desc_OreCopper_C",
+                        Amount = 1
+                    }
+                },
+                Product = new List<ItemRate>
+                {
+                    new()
+                    {
+                        ClassName = "Desc_CopperIngot_C",
+                        Amount = 1
+                    }
+                },
+                ManufactoringDuration = 2
+            };
+
+            var recipes = new List<Recipe>
+            {
+                copperIngotRecipe,
+                wireRecipe
+            };
+
+            var components = RecipeItemProducerFactory.FromFactoryPlan(plan, recipes);
+
+            var wireProducer = components.Single(c => c.Id == wireProducerId);
+
+            var request = new ItemRateListBuilder()
+                .WithItem("Desc_Wire_C", 60)
+                .Build();
+
+            wireProducer.AddRequest(request);
+
+            wireProducer.Products.Values.Single().Single().ClassName.ShouldBe("Desc_Wire_C");
+            wireProducer.Products.Values.Single().Single().Amount.ShouldBe(30);
         }
     }
 }

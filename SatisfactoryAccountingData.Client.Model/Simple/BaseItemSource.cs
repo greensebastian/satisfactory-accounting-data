@@ -2,10 +2,23 @@
 {
     public abstract class BaseItemSource : ISimpleItemSource
     {
+        protected BaseItemSource(Guid id)
+        {
+            Id = id;
+        }
+
+        public Guid Id { get; }
+
         public IDictionary<IItemRateList, IItemRateList> Products { get; } =
             new Dictionary<IItemRateList, IItemRateList>();
 
         public IItemRateList LeftoverProducts => LeftoverItems;
+
+        public IItemRateList ConsumedIngredients => ProtectedConsumedIngredients;
+
+        public ItemRateList ProtectedConsumedIngredients { get; } = new();
+
+        public IReadOnlyList<ISimpleItemSource> Sources => ProtectedSources.AsReadOnly();
 
         public IItemRateList AddRequest(IItemRateList product)
         {
@@ -23,15 +36,15 @@
 
         public void AddSource(ISimpleItemSource source)
         {
-            if (Sources.Contains(source)) return;
-            Sources.Add(source);
+            if (ProtectedSources.Contains(source)) return;
+            ProtectedSources.Add(source);
             RecomputeProducts();
         }
 
         public void RemoveSource(ISimpleItemSource source)
         {
-            if (!Sources.Contains(source)) return;
-            Sources.Remove(source);
+            if (!ProtectedSources.Contains(source)) return;
+            ProtectedSources.Remove(source);
             RecomputeProducts();
         }
 
@@ -39,6 +52,7 @@
         {
             Products.Clear();
             LeftoverItems.Clear();
+            ProtectedConsumedIngredients.Clear();
             ComputeResult();
         }
 
@@ -46,7 +60,7 @@
 
         protected List<IItemRateList> Requests { get; } = new();
 
-        protected List<ISimpleItemSource> Sources { get; } = new();
+        public List<ISimpleItemSource> ProtectedSources { get; } = new();
 
         protected void AddToProduct(IItemRateList request, IItemRateList result)
         {
