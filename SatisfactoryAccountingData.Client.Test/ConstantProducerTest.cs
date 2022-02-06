@@ -9,7 +9,7 @@ namespace SatisfactoryAccountingData.Client.Test
 {
     public class ConstantProducerTest
     {
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void ConstantProducer_OneItem_Emits()
         {
             var producer = new UnlimitedProducer();
@@ -46,7 +46,7 @@ namespace SatisfactoryAccountingData.Client.Test
             updateCount.ShouldBe(1);
         }
 
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void ConstantProducer_TwoItems_ComputesRatio()
         {
             var producer = new UnlimitedProducer

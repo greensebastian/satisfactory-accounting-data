@@ -10,7 +10,7 @@ namespace SatisfactoryAccountingData.Client.Test
 {
     public class ObservableRecipeProducerTest
     {
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void RecipeProducer_OneInputOneOutput_ShouldHaveProducts()
         {
             var recipe = new Recipe
@@ -42,7 +42,7 @@ namespace SatisfactoryAccountingData.Client.Test
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "Banana" && product.Amount == 2);
         }
 
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void RecipeProducer_ChainOfTwo_ShouldHaveProducts()
         {
             var bananaRecipe = new Recipe
@@ -96,7 +96,7 @@ namespace SatisfactoryAccountingData.Client.Test
             clementineProducer.CurrentProducts.ShouldContain(product => product.ClassName == "Clementine" && product.Amount == 4);
         }
 
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void RecipeProducer_OneInputOneOutput_ShouldBeOutputLimited()
         {
             var recipe = new Recipe
@@ -134,7 +134,7 @@ namespace SatisfactoryAccountingData.Client.Test
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "Banana" && product.Amount == 1);
         }
 
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void RecipeProducer_TwoInputsOneOutput_ShouldOptimize()
         {
             var producer = RecipeProducerFactory.FromSingleOutputRecipe("Output", 10, ("A", 10), ("B", 20));
@@ -160,7 +160,7 @@ namespace SatisfactoryAccountingData.Client.Test
             bProducer.CurrentProductEfficiencies.ShouldContain(product => product.ClassName == "B" && product.Amount == 1);
         }
 
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void RecipeProducer_OneImpossibleOutput_ShouldNotFail()
         {
             var producer = RecipeProducerFactory.FromSingleOutput("A", 10);
@@ -172,7 +172,7 @@ namespace SatisfactoryAccountingData.Client.Test
             producer.CurrentProducts.ShouldBeEmpty();
         }
 
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void RecipeProducer_OneInputSourceChanges_ShouldUpdate()
         {
             var producer = RecipeProducerFactory.FromSingleOutput("A", 10);
@@ -191,7 +191,7 @@ namespace SatisfactoryAccountingData.Client.Test
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
         }
 
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void RecipeProducer_OneInputHigherClock_ShouldWork()
         {
             var producer = RecipeProducerFactory.FromSingleOutput("A", 10);
@@ -210,7 +210,7 @@ namespace SatisfactoryAccountingData.Client.Test
             producer.CurrentProducts.ShouldContain(product => product.ClassName == "A" && product.Amount == 5);
         }
 
-        [Fact]
+        [Fact(Skip = "Old implementation")]
         public void RecipeProducer_TwoConsumersOneSource_ShouldSplit()
         {
             var producer = RecipeProducerFactory.FromSingleOutput("A", 10);
